@@ -1,0 +1,21 @@
+export default {
+	automock: true,
+	cacheDirectory: './Temp',
+	clearMocks: true,
+	collectCoverage: true,
+	coverageDirectory: 'coverage',
+	coveragePathIgnorePatterns: ['\\\\node_modules\\\\'],
+	coverageProvider: 'v8',
+	coverageReporters: ['json', 'text', 'lcov', 'clover'],
+	moduleDirectories: ['node_modules'],
+	moduleFileExtensions: ['ts', 'tsx'],
+	notify: true,
+	preset: 'ts-jest',
+	resetMocks: true,
+	resetModules: true,
+	roots: ['./Source/UnitTest'],
+	transform: {
+		'^.+\\.(ts|tsx)?$': 'ts-jest',
+		'^.+\\.(js|jsx)$': 'babel-jest',
+	},
+};
