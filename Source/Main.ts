@@ -3,7 +3,7 @@ import { HttpClient } from './HttpServiceClient/HttpClient';
 import filestream from 'fs';
 
 (async () => {
-	let data = filestream.readFileSync(__dirname + '/arc.bin', 'base64');
+	let data = filestream.readFileSync(__dirname + '/../arc.bin', 'base64');
 	const ServiceClient = new HttpClient({
 		Url: process.argv[2],
 		QueryString: {
