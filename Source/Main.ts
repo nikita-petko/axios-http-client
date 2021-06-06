@@ -10,7 +10,7 @@ import filestream from 'fs';
 		CheckResponseDataForOKStatus: false,
 		Payload: data,
 		AdditionalHeaders: {
-			Host: process.argv[3]
+			Host: process.argv[3] || process.argv[2]
 		}
 	});
 	setInterval(async () => {
