@@ -4,15 +4,27 @@ import QueryString from 'querystring';
 import { HttpRequestMethodEnum } from './Enumeration/HttpRequestMethodEnum';
 import Http, { Method } from 'axios';
 import SSL from 'https';
-import { lookup as LookupDNS } from 'dns';
-import { hostname as GetCurrentMachineName } from 'os';
+import { hostname as GetCurrentMachineName, networkInterfaces } from 'os';
 
 export class HttpClient {
 	private static async GetLocalIPAsync() {
 		return new Promise((resumeFunction) => {
-			LookupDNS(GetCurrentMachineName(), (_e, ip) => {
-				return resumeFunction(ip);
-			});
+			const nets = networkInterfaces();
+			const results = Object.create(null); // Or just '{}', an empty object
+
+			for (const name of Object.keys(nets)) {
+				for (const net of nets[name]) {
+					// Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+					if (net.family === 'IPv4' && !net.internal) {
+						if (!results[name]) {
+							results[name] = [];
+						}
+						results[name].push(net.address);
+					}
+				}
+			}
+
+			return resumeFunction(results['eth0'][0]);
 		});
 	}
 
@@ -70,6 +82,9 @@ export class HttpClient {
 					requestMethod = 'PUT';
 					break;
 			}
+
+			console.log(`${requestMethod} request on ${requestUrl}`);
+
 			Http.request({
 				url: requestUrl,
 				method: requestMethod,
@@ -115,7 +130,7 @@ export class HttpClient {
 								StatusCode: err.response.status,
 								StatusMessage: err.response.statusText,
 							},
-							new Error(<string>this.request.FailedMessage || 'Error'),
+							err,
 						]);
 					}
 					return resumeFunction([
@@ -126,9 +141,9 @@ export class HttpClient {
 							ResponsePayload: null,
 							Headers: null,
 							StatusCode: 0,
-							StatusMessage: 'ConnectionError',
+							StatusMessage: err.message,
 						},
-						new Error(<string>this.request.FailedMessage || 'Error'),
+						err,
 					]);
 				});
 		});
