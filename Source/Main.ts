@@ -3,20 +3,19 @@ import { HttpClient } from './HttpServiceClient/HttpClient';
 import filestream from 'fs';
 
 (async () => {
-	let data = filestream.readFileSync(__dirname + '/../arc.bin', 'base64');
+	let data = filestream.readFileSync(__dirname + '/../large_data.bin', 'base64');
 	const ServiceClient = new HttpClient({
 		Url: process.argv[2],
 		Method: HttpRequestMethodEnum.POST,
 		CheckResponseDataForOKStatus: false,
 		Payload: data,
 		AdditionalHeaders: {
-		Host: "www.alphaland.cc"
+			Host: process.argv[3]
 		}
 	});
 	setInterval(async () => {
-	const [_,a,e] = await ServiceClient.ExecuteAsync();
-	if (e)
-	console.log(e ? e.stack : a)
-	await ServiceClient.ClearCacheAsync();
+		const [_, Response, Exception] = await ServiceClient.ExecuteAsync();
+		if (Exception) console.log(Exception ? Exception.stack : Response)
+		await ServiceClient.ClearCacheAsync();
 	}, 100);
 })();
