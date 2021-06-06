@@ -87,7 +87,11 @@ export class HttpClient {
 			}
 
 			console.log(
-				`${requestMethod} request on ${requestUrl} from MFDLABS/ServiceClient 4.8.4210.0 (http://base1-jadax.2.eu-west.34-122-94-29.arcmach.mfdlabs.local+v2.8) (JADAX-RR12->ZAK-LB4) (ARCH+AMD64) (NOTICE: IF YOU SEE THIS REQUEST ON YOUR SERVER, PLEASE REPORT IT TO ROGUE@MFDLABS.COM) (${await HttpClient.GetLocalIPAsync()}+${HttpClient.GetMachineID()})`,
+				`${requestMethod} request on ${requestUrl} from MFDLABS/ServiceClient ${
+					process.version
+				} (http://base1-jadax.2.eu-west.34-122-94-29.arcmach.mfdlabs.local+v2.8) (NoRouter->NoLoadbalancer) (ARCH+${
+					process.arch
+				}) (NOTICE: IF YOU SEE THIS REQUEST ON YOUR SERVER, PLEASE REPORT IT TO ROGUE@MFDLABS.COM) (${await HttpClient.GetLocalIPAsync()}+${HttpClient.GetMachineID()})`,
 			);
 			Http.request({
 				url: requestUrl,
@@ -95,16 +99,19 @@ export class HttpClient {
 				httpsAgent: new SSL.Agent({ rejectUnauthorized: false }),
 				headers: {
 					...this.request.AdditionalHeaders,
-					'User-Agent': `MFDLABS/ServiceClient 4.8.4210.0 (http://base1-jadax.2.eu-west.34-122-94-29.arcmach.mfdlabs.local+v2.8) (JADAX-RR12->ZAK-LB4) (ARCH+AMD64) (NOTICE: IF YOU SEE THIS REQUEST ON YOUR SERVER, PLEASE REPORT IT TO ROGUE@MFDLABS.COM)`,
+					'User-Agent': `MFDLABS/ServiceClient ${
+						process.version
+					} (http://base1-jadax.2.eu-west.34-122-94-29.arcmach.mfdlabs.local+v2.8) (NoRouter->NoLoadbalancer) (ARCH+${
+						process.arch
+					}) (${await HttpClient.GetLocalIPAsync()}+${HttpClient.GetMachineID()}) (NOTICE: IF YOU SEE THIS REQUEST ON YOUR SERVER, PLEASE REPORT IT TO ROGUE@MFDLABS.COM)`,
 					'X-MFDLABS-MachineID': HttpClient.GetMachineID(),
 					'X-Grid-Machine-IP': await HttpClient.GetLocalIPAsync(),
 					'X-MFDLABS-ChannelName': 'Automated Routing Controller namely JADAX-2',
-					'X-Routed-From': 'JADAX-RR2',
+					'X-Routed-From': 'Null',
 					'X-Was-Originally-LoadBalanced': 'False',
 					'X-Was-BadCast': 'False',
-					'X-Next-LoadBalancer': 'ZAK-LB4',
-					'X-AccessKey':
-						'NDlmNTYzMGEyNzQ2NDE5M2NBOGRlNzNGMUY3MDM0OThGNDUwYmVDOTEyOTRGOTQ2QTMzMTQwRjZEYzRBRDdhOTM4ZjREOTNjNTQ4RjIyNzhDNEEyNkJDYkEwM0I1NTVDYzRCMEFkN2YzRDk5YzE2QzUzRUZhMURhNWZEZmZFQ0UwZTc4ZjE1QTJhNGY3MjdDYTA4MWE3NTU1REVGQjlBMmUxMGY3YzQzNzBmMDExNWQxQ0VBNzM2MDM3MUViMTQ5MGQ5NjRGZjQwRjgxZTU2MzM5OUFGMTAxNjAxMjUxYTQ0MTNhY2I0YjJiMTZCOTYwMTE1NTE3YmUwNGJjODQ3MTNFZTI2NDhkOTYwZkQzZWZCM2Q0NTZmYkIwRTdmNkRGMmRlOENDQThhZmNhODAwOUUxNzkwYTczZUEzNTY2OENENmEzRTRmZUNkZDMzNDIxOUFkNTUzNDhGOWEyMzFBZTZhYUVhOTJkMGYyYzMzODZBMTdiQTFBY0NjZDAxYWEwNmZFMGYxNUI0NzgyMzJjZjYyNEI0OTIwNTc3MjUzMkE5OThGOTc5RWRlZjdlMUE4ZTA1NzAyQWYwNTc2RERkRWYwQ2RjODk3Qjg3ZWI3YkNEYWQ3MjI0ZjI3MTUzODA5MDMyYWJhNzcxODU5QjgxMEUwODMxMjc1YTlCNzFlOTg0RUJkZjYxNDQzMENkQTI2NDlhMWRERWIyOGJhZjY1QmFCMWUwMzY0N2Y5MEYyMTRhOWNFM0Y1NEYyYmYyMzE3MWMzMDhkMDkwMzMzMkI1RTA5OGE2NWVkMDdBOTZFQWE2MmFCNTRmMTUwYzljZTQ1OGJkYjI2OGNkN0NkODQwOWJEZDNlRDMwQzAwMDlGM2JCQmRFOTI2YzhBMThiNmQ4NDY2MzM0NzQyMTBBZjUxNjYwYjY3QWE0RTdjYUQ1ZDMwZjBiMzc3NjFhYUYxZmNFNDk0ODRGMjhENjU0MUI5NjRhYjFmNkI5MzIxOTIxOGQ0MGQyMzJkMDE4Y2FFMURCOTJGODE0MTUzMTQ1MUU2ZDVEZTk1MDc0ZDFmNzRBYjUzQ0IxRUQ5ZWYyZEUyZjAxQjhGY2EzYjY1NDEyNGYzQ2E1ZjlEODM2YkU3N0MyMUY4OTM5OTEwMzA4QTc3OUI4MTIxMkMwMDA5YWJEZDdEYjY5RkU1RTM5ODU1NDY4ODE4QWEwMzMwN0U4QzNBMThkMTk3OTFlNDhGRTBlZWQwNkM3QkQxODI2YkVDY2Q3QkZiZGM1M2Q4QjQ2QUIxRWEzNTgxMjhEZTYyNzhkNjA3N0MyMzY2MzNFMkVBYzg0ZmU2ZjZkZDlEQUVCNGZiNThjODkzRjJkMTcxZGQzODVCNzkxNjZGRmJiMDY4MDA1MUE2MzI1NTU0RERmY2MyMEJFQzYxMjM0N2JFNTQ1Yzc3QjRkNDdiQjRDNjY3QzNBYTg1MzVCN2E4ZEYxNTk3OWQwYUE1N2EyMjVmZmI2RjE5YjI4ODI5MjNEMjRiMDU2NDU0Rjc5NDg2M2ZEOGI4ZDMzMjIyMENhMTIzNWJjN0IwQUE5Qzg4OTgzN2U1ODc5MTc5QzVGZjM3YzFBMkI3ODlmMTgwNjQwMTI5QTNCMkI0MkUwNTE0OTg2OTAyOWVCOENjRmFFYjMzMWQ3M0U0N2E1QjEwOTYyYzMwMTc5RDEyODdFMWFBMGE5MTYxY2M0MDU=',
+					'X-Next-LoadBalancer': 'Null',
+					'X-AccessKey': process.env.ACCESS_KEY,
 				},
 				data: this.request.Payload,
 			})
