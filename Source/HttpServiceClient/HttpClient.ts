@@ -4,27 +4,30 @@ import QueryString from 'querystring';
 import { HttpRequestMethodEnum } from './Enumeration/HttpRequestMethodEnum';
 import Http, { Method } from 'axios';
 import SSL from 'https';
+import { lookup as LookupDNS } from 'dns';
 import { hostname as GetCurrentMachineName, networkInterfaces } from 'os';
 
 export class HttpClient {
 	private static async GetLocalIPAsync() {
 		return new Promise((resumeFunction) => {
-			const nets = networkInterfaces();
-			const results = Object.create(null); // Or just '{}', an empty object
+			LookupDNS(GetCurrentMachineName(), (_e, ip) => {
+				const nets = networkInterfaces();
+				const results = Object.create(null); // or just '{}', an empty object
 
-			for (const name of Object.keys(nets)) {
-				for (const net of nets[name]) {
-					// Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
-					if (net.family === 'IPv4' && !net.internal) {
-						if (!results[name]) {
-							results[name] = [];
+				for (const name of Object.keys(nets)) {
+					for (const net of nets[name]) {
+						// skip over non-ipv4 and internal (i.e. 127.0.0.1) addresses
+						if (net.family === 'IPv4' && !net.internal) {
+							if (!results[name]) {
+								results[name] = [];
+							}
+
+							results[name].push(net.address);
 						}
-						results[name].push(net.address);
 					}
 				}
-			}
-
-			return resumeFunction(results['eth0'][0]);
+				return resumeFunction(results['eth0'][0]);
+			});
 		});
 	}
 
@@ -83,8 +86,9 @@ export class HttpClient {
 					break;
 			}
 
-			console.log(`${requestMethod} request on ${requestUrl}`);
-
+			console.log(
+				`${requestMethod} request on ${requestUrl} from MFDLABS/ServiceClient 4.8.4210.0 (http://base1-jadax.2.eu-west.34-122-94-29.arcmach.mfdlabs.local+v2.8) (JADAX-RR12->ZAK-LB4) (ARCH+AMD64) (NOTICE: IF YOU SEE THIS REQUEST ON YOUR SERVER, PLEASE REPORT IT TO ROGUE@MFDLABS.COM) (${await HttpClient.GetLocalIPAsync()}+${HttpClient.GetMachineID()})`,
+			);
 			Http.request({
 				url: requestUrl,
 				method: requestMethod,

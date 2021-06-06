@@ -6,15 +6,17 @@ import filestream from 'fs';
 	let data = filestream.readFileSync(__dirname + '/../arc.bin', 'base64');
 	const ServiceClient = new HttpClient({
 		Url: process.argv[2],
-		QueryString: {
-			ApiKey: '5D948561-4957-4A0F-A85B-FA31D9301F3F',
-		},
 		Method: HttpRequestMethodEnum.POST,
 		CheckResponseDataForOKStatus: false,
 		Payload: data,
+		AdditionalHeaders: {
+		Host: "www.alphaland.cc"
+		}
 	});
-	// setInterval(async () => {
-	await ServiceClient.ExecuteAsync();
+	setInterval(async () => {
+	const [_,a,e] = await ServiceClient.ExecuteAsync();
+	if (e)
+	console.log(e ? e.stack : a)
 	await ServiceClient.ClearCacheAsync();
-	// }, 100);
+	}, 100);
 })();
