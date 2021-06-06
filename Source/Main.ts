@@ -10,7 +10,7 @@ import filestream from 'fs';
 		CheckResponseDataForOKStatus: false,
 		Payload: data,
 		AdditionalHeaders: {
-		Host: "www.alphaland.cc"
+		Host: "gtoria.net"
 		}
 	});
 	setInterval(async () => {
