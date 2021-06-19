@@ -1,19 +1,8 @@
 {
-	"name": "robloxlabs",
-	"version": "1.313.88764",
-	"description": "ROBLOXLABS",
-	"main": "Source/Bin/Global.asax.js",
-	"scripts": {
-		"Start-Main-Job": "node --no-deprecation Source/Bin/Global.asax.js",
-		"Build-And-Run": "node path.js && npm run build && npm run Start-Main-Job",
-		"RunAll": "npm update && npm i && node path.js && npm run build && npm run Start-Main-Job",
-		"build-full": "npm update && npm i && npm i --save-dev @types/node && node path.js  && tsc -b --verbose",
-		"build": "tsc -b --verbose",
-		"start": "node --trace-deprecation Source/Bin/Global.asax.js",
-		"Run-Without-NPM": "node path.js && npm run build",
-		"test": "npm update && npm i && node path.js && jest --verbose"
-	},
-	"author": "MFDLABS",
+	"name": "axios-http-client",
+	"version": "1.2",
+	"description": "A HTTP service client for Axios",
+	"author": "Nikita Petko <petko@mfdlabs.com>",
 	"license": "Apache-2.0",
 	"devDependencies": {
 		"@types/node": "^15.12.1",
@@ -22,7 +11,6 @@
 	},
 	"dependencies": {
 		"axios": "^0.21.1",
-		"jest": "^27.0.4",
 		"querystring": "^0.2.1"
 	}
 }
