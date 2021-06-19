@@ -5,18 +5,19 @@ import { HttpRequestMethodEnum } from './Enumeration/HttpRequestMethodEnum';
 import Http, { Method } from 'axios';
 import SSL from 'https';
 import { lookup as LookupDNS } from 'dns';
-import { hostname as GetCurrentMachineName, networkInterfaces } from 'os';
+import { hostname as GetCurrentMachineName, networkInterfaces as NAT } from 'os';
 
 export class HttpClient {
+	private statc LocalIP;
+	private static MachineName = GetMachineID();
 	private static async GetLocalIPAsync() {
 		return new Promise((resumeFunction) => {
-			LookupDNS(GetCurrentMachineName(), (_e, ip) => {
-				const nets = networkInterfaces();
-				const results = Object.create(null); // or just '{}', an empty object
+			LookupDNS(HttpClient.MachineName, (_e, ip) => {
+				const nets = NAT();
+				const results = Object.create(null);
 
 				for (const name of Object.keys(nets)) {
 					for (const net of nets[name]) {
-						// skip over non-ipv4 and internal (i.e. 127.0.0.1) addresses
 						if (net.family === 'IPv4' && !net.internal) {
 							if (!results[name]) {
 								results[name] = [];
@@ -56,6 +57,7 @@ export class HttpClient {
 
 	public async ExecuteAsync<TResponse = any>(): Promise<[boolean, ClientResponse<TResponse>, Error]> {
 		return new Promise<[boolean, ClientResponse, Error]>(async (resumeFunction) => {
+			if (HttpClient.LocalIP === undefined) HttpClient.LocalIP = await HttpClient.GetLocalIPAsync();
 			if (!this.request)
 				return resumeFunction([false, null, new TypeError("The request was null, please update it via 'UpdateConfiguration'.")]);
 
@@ -86,32 +88,19 @@ export class HttpClient {
 					break;
 			}
 
-			console.log(
-				`${requestMethod} request on ${requestUrl} from MFDLABS/ServiceClient ${
-					process.version
-				} (http://base1-jadax.2.eu-west.34-122-94-29.arcmach.mfdlabs.local+v2.8) (NoRouter->NoLoadbalancer) (ARCH+${
-					process.arch
-				}) (NOTICE: IF YOU SEE THIS REQUEST ON YOUR SERVER, PLEASE REPORT IT TO ROGUE@MFDLABS.COM) (${await HttpClient.GetLocalIPAsync()}+${HttpClient.GetMachineID()})`,
-			);
 			Http.request({
 				url: requestUrl,
 				method: requestMethod,
-				httpsAgent: new SSL.Agent({ rejectUnauthorized: false }),
+				httpsAgent: new SSL.Agent({ rejectUnauthorized: false }), // Set this to true if you want to verify SSL certficates.
 				headers: {
 					...this.request.AdditionalHeaders,
-					'User-Agent': `MFDLABS/ServiceClient ${
+					'User-Agent': `Axios/ServiceClient ${
 						process.version
-					} (http://base1-jadax.2.eu-west.34-122-94-29.arcmach.mfdlabs.local+v2.8) (NoRouter->NoLoadbalancer) (ARCH+${
+					} (axios+0.21.1) (ARCH+${
 						process.arch
-					}) (${await HttpClient.GetLocalIPAsync()}+${HttpClient.GetMachineID()}) (NOTICE: IF YOU SEE THIS REQUEST ON YOUR SERVER, PLEASE REPORT IT TO ROGUE@MFDLABS.COM)`,
-					'X-MFDLABS-MachineID': HttpClient.GetMachineID(),
-					'X-Grid-Machine-IP': await HttpClient.GetLocalIPAsync(),
-					'X-MFDLABS-ChannelName': 'Automated Routing Controller namely JADAX-2',
-					'X-Routed-From': 'Null',
-					'X-Was-Originally-LoadBalanced': 'False',
-					'X-Was-BadCast': 'False',
-					'X-Next-LoadBalancer': 'Null',
-					'X-AccessKey': process.env.ACCESS_KEY,
+					}) (${HttpClient.LocalIP}+${HttpClient.MachineName})`,
+					'X-MachineID': HttpClient.MachineName,
+					'X-MachineIP': HttpClient.LocalIP
 				},
 				data: this.request.Payload,
 			})
