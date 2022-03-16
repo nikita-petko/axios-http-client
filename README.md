@@ -1,1 +1,1 @@
-A simple http client for Axios that is based of Mfdlabs.Http.ServiceClient.ClientInvokerBase;
+This repository has been archived, it contains code for a simple Type integrated HTTP Rest Client for Axios. 
